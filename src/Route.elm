@@ -7,6 +7,11 @@ import Url exposing (Url)
 import Url.Parser as Parser exposing ((</>), Parser, oneOf, s, string)
 
 
+subpath : String
+subpath =
+    "__subpath__"
+
+
 
 -- ROUTING
 
@@ -19,11 +24,12 @@ type Route
 
 parser : Parser (Route -> a) a
 parser =
-    oneOf
-        [ Parser.map Overview Parser.top
-        , Parser.map NewContact (s "new")
-        , Parser.map UpdateContact (s "update" </> string)
-        ]
+    s subpath
+        </> oneOf
+                [ Parser.map Overview Parser.top
+                , Parser.map NewContact (s "new")
+                , Parser.map UpdateContact (s "update" </> string)
+                ]
 
 
 

@@ -99,7 +99,7 @@ view model =
 init : Int -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init seed url key =
     stepUrl url
-        { page = NotFound <| Session.empty key <| initialSeed seed }
+        { page = NotFound <| Session.empty key (initialSeed seed) }
 
 
 

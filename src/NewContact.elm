@@ -158,7 +158,7 @@ init session =
         ( newUuid, newSeed ) =
             step Uuid.uuidGenerator session.currentSeed
     in
-    ( defaultModel (Session.setSeed session newSeed) newUuid
+    ( defaultModel (Session.setSeed newSeed session) newUuid
     , Cmd.none
     )
 

@@ -60,7 +60,7 @@ update msg model =
                     handleContactsFromOutside model contacts
 
                 PositionUpdated positionUpdate ->
-                    ( { model | session = Session.setPositionStatus model.session positionUpdate }, Cmd.none )
+                    ( { model | session = Session.setPositionStatus positionUpdate model.session }, Cmd.none )
 
         CreateNewContact ->
             ( model, Route.pushUrl model.session.key Route.NewContact )
@@ -132,7 +132,7 @@ view model =
 
 handleContactsFromOutside : Model -> List Contact -> ( Model, Cmd Msg )
 handleContactsFromOutside model contactsResult =
-    ( { model | session = Session.setContactStatus model.session <| Session.Loaded contactsResult }, Cmd.none )
+    ( { model | session = Session.setContactStatus (Session.Loaded contactsResult) model.session }, Cmd.none )
 
 
 replaceContact : Model -> Contact -> List Contact

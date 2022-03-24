@@ -2,6 +2,7 @@ module Session exposing (..)
 
 import Browser.Navigation as Nav
 import Contact exposing (Contact)
+import Html exposing (sub)
 import Position exposing (PositionStatus)
 import Random exposing (Seed)
 
@@ -46,18 +47,18 @@ getContactById data id =
             Nothing
 
 
-setContactStatus : Data -> ContactStatus -> Data
-setContactStatus data status =
+setContactStatus : ContactStatus -> Data -> Data
+setContactStatus status data =
     { data | contactStatus = status }
 
 
-setPositionStatus : Data -> PositionStatus -> Data
-setPositionStatus data status =
+setPositionStatus : PositionStatus -> Data -> Data
+setPositionStatus status data =
     { data | positionStatus = status }
 
 
-setSeed : Data -> Seed -> Data
-setSeed data seed =
+setSeed : Seed -> Data -> Data
+setSeed seed data =
     { data | currentSeed = seed }
 
 
