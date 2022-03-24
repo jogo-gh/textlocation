@@ -2,7 +2,7 @@ port module OutsideInfo exposing (..)
 
 import Contact exposing (Contact, contactDecoder, contactEncoder)
 import Json.Decode exposing (decodeValue, errorToString)
-import Json.Encode exposing (encode, null)
+import Json.Encode as E
 import Position exposing (Position, PositionStatus, positionStatusDecoder)
 
 
@@ -19,7 +19,10 @@ sendInfoOutside info =
             infoForOutside { tag = "DeleteContact", data = contactEncoder contact }
 
         GetAllContacts ->
-            infoForOutside { tag = "GetAllContacts", data = null }
+            infoForOutside { tag = "GetAllContacts", data = E.null }
+
+        OpenURN urn ->
+            infoForOutside { tag = "OpenURN", data = E.object [ ( "urn", E.string urn ) ] }
 
 
 getInfoFromOutside : (InfoForElm -> msg) -> (String -> msg) -> Sub msg
@@ -44,7 +47,7 @@ getInfoFromOutside tagger onError =
                             onError (errorToString e)
 
                 _ ->
-                    onError <| "Unexpected info from outside: tag: " ++ outsideInfo.tag ++ "; data: " ++ encode 0 outsideInfo.data
+                    onError <| "Unexpected info from outside: tag: " ++ outsideInfo.tag ++ "; data: " ++ E.encode 0 outsideInfo.data
         )
 
 
@@ -53,6 +56,7 @@ type InfoForOutside
     | ModifyContact Contact
     | DeleteContact Contact
     | GetAllContacts
+    | OpenURN String
 
 
 type InfoForElm
@@ -61,7 +65,7 @@ type InfoForElm
 
 
 type alias GenericOutsideData =
-    { tag : String, data : Json.Encode.Value }
+    { tag : String, data : E.Value }
 
 
 port infoForOutside : GenericOutsideData -> Cmd msg

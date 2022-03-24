@@ -74,8 +74,8 @@ update msg model =
         DeleteContactClicked chore ->
             ( { model | contactToDelete = Just chore }, Cmd.none )
 
-        SendMessageToContact _ ->
-            ( model, Cmd.none )
+        SendMessageToContact contact ->
+            ( model, OutsideInfo.sendInfoOutside <| OutsideInfo.OpenURN ("sms:" ++ contact.number ++ "?body=Hello_World") )
 
         -- sendMessageToContact model contact
         UpdateContactClicked contact ->
@@ -345,23 +345,6 @@ defaultModel session =
 getAllContacts : Cmd Msg
 getAllContacts =
     OutsideInfo.sendInfoOutside OutsideInfo.GetAllContacts
-
-
-httpGetJSON : { url : String, expect : Http.Expect msg } -> Cmd msg
-httpGetJSON params =
-    let
-        headers =
-            [ Http.header "Accept" "application/json" ]
-    in
-    Http.request
-        { method = "GET"
-        , headers = headers
-        , url = params.url
-        , body = Http.emptyBody
-        , expect = params.expect
-        , timeout = Nothing
-        , tracker = Nothing
-        }
 
 
 deleteContact : Contact -> Cmd Msg
