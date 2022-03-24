@@ -15,28 +15,11 @@ export default defineConfig({
         , 'favicon.ico'
         , 'robots.txt'
         , 'apple-touch-icon.png'
-        , 'reshot-icon-angry-bull-RDFCV35TKJ.svg'
-        , 'reshot-icon-cat-X7MDCQAJBV.svg'
-        , 'reshot-icon-chick-EHGK643RB7.svg'
-        , 'reshot-icon-chicken-A3LF7K6C8G.svg'
-        , 'reshot-icon-cow-URMEQCY7SW.svg'
-        , 'reshot-icon-dog-BN3K2EX8W7.svg'
-        , 'reshot-icon-donkey-EKBHU4NVZW.svg'
-        , 'reshot-icon-duck-G984NMJWTC.svg'
-        , 'reshot-icon-fish-92ZSLJDT7R.svg'
-        , 'reshot-icon-goat-6WU932E5VP.svg'
-        , 'reshot-icon-horse-RAWMC2NSQK.svg'
-        , 'reshot-icon-parrot-7L5NXGZRKW.svg'
-        , 'reshot-icon-pet-bird-YB7M2V9K58.svg'
-        , 'reshot-icon-rooster-VWQ5829NHB.svg'
-        , 'reshot-icon-sheep-2GXLFHBVWT.svg'
-        , 'reshot-icon-snake-CH8DLP2ZGT.svg'
-        , 'reshot-icon-striped-fish-LZUWX6VB24.svg'
-        , 'reshot-icon-wild-bird-CV2LRHUYJ6.svg'],
+      ],
     manifest: {
-      name: "Mach's Einfach!",
-      short_name: 'MachsEinfach',
-      description: 'TODO list as a PWA',
+      name: "Text My Location!",
+      short_name: 'TextLocation',
+      description: 'Send my location as SMS',
       theme_color: '#ffffff',
       icons: [
         {
