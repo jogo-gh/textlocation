@@ -65,4 +65,5 @@ export default defineConfig({
       __buildVersion__: "0.0.1"
     })
   ],
+  base: "/textlocation/"
 });
