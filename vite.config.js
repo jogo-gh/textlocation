@@ -45,7 +45,8 @@ export default defineConfig({
     }
   })
     , replace({
-      __buildVersion__: "0.0.1"
+      __buildVersion__: "0.0.1",
+      __subpath__: "textlocation"
     })
   ],
   base: "/textlocation/"
