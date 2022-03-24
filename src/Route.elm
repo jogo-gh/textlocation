@@ -62,7 +62,7 @@ fromUrl =
 
 routeToString : Route -> String
 routeToString page =
-    "/" ++ String.join "/" (routeToPieces page)
+    "/" ++ subpath ++ String.join "/" (routeToPieces page)
 
 
 routeToPieces : Route -> List String
