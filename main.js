@@ -45,6 +45,8 @@ app.ports.infoForOutside.subscribe(msg => {
     })
   } else if (msg.tag == "GetAllContacts") {
     getAllDocs(app, db)
+  } else if (msg.tag == "OpenURN") {
+    window.open(msg.data.urn)
   }
 });
 
