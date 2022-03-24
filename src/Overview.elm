@@ -16,11 +16,13 @@ import Material.Menu as Menu
 import Material.TopAppBar as TopAppBar
 import Material.Typography as Typography
 import OutsideInfo exposing (InfoForElm(..), getInfoFromOutside)
+import Position exposing (PositionStatus(..))
 import Route
 import Session
 import Task
 import Time
 import Time.Extra
+import Url
 
 
 type TimeStatus
@@ -75,7 +77,7 @@ update msg model =
             ( { model | contactToDelete = Just chore }, Cmd.none )
 
         SendMessageToContact contact ->
-            ( model, OutsideInfo.sendInfoOutside <| OutsideInfo.OpenURN ("sms:" ++ contact.number ++ "?body=Hello_World") )
+            ( model, OutsideInfo.sendInfoOutside <| OutsideInfo.OpenURN (createPositionSMS contact model.session.positionStatus) )
 
         -- sendMessageToContact model contact
         UpdateContactClicked contact ->
@@ -128,6 +130,35 @@ view model =
         Session.Empty ->
             Html.div []
                 []
+
+
+createPositionSMS : Contact -> PositionStatus -> String
+createPositionSMS contact positionStatus =
+    case positionStatus of
+        ValidPosition position ->
+            createSMS contact.number (" I am located here " ++ geoURN position)
+
+        _ ->
+            createSMS contact.number " No valid position available."
+
+
+createSMS : String -> String -> String
+createSMS number text =
+    "sms:" ++ number ++ "?body=" ++ Url.percentEncode text
+
+
+geoURN : Position.Position -> String
+geoURN position =
+    "geo:"
+        ++ String.fromFloat position.latitude
+        ++ ","
+        ++ String.fromFloat position.longitude
+        ++ ";u="
+        ++ String.fromFloat position.accuracy
+        ++ "?q="
+        ++ String.fromFloat position.latitude
+        ++ ","
+        ++ String.fromFloat position.longitude
 
 
 handleContactsFromOutside : Model -> List Contact -> ( Model, Cmd Msg )
