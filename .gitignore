@@ -4,3 +4,4 @@ elm-stuff
 repl-temp-*
 # automatically installe nodejs modules
 node_modules
+dist
