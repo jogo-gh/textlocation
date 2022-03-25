@@ -63,7 +63,7 @@ function positionSuccess(pos) {
 
   app.ports.infoForElm.send({
     tag: "PositionUpdated",
-    data: { longitude: crd.longitude, latitude: crd.latitude, accuracy: crd.accuracy }
+    data: { longitude: crd.longitude, latitude: crd.latitude, accuracy: crd.accuracy, error: "" }
   });
 }
 
