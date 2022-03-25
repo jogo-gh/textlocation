@@ -50,7 +50,7 @@ type Msg
     | MenuClosed
     | ShowAboutDialog
     | CloseAboutDialog
-    | NoOp
+    | OutsideDataError String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -95,13 +95,13 @@ update msg model =
         CloseAboutDialog ->
             ( { model | showAboutDialog = False }, Cmd.none )
 
-        NoOp ->
+        OutsideDataError _ ->
             ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.batch [ getInfoFromOutside OutsideData (\_ -> NoOp) ]
+    Sub.batch [ getInfoFromOutside OutsideData (\error -> OutsideDataError error) ]
 
 
 view : Model -> Html Msg
@@ -114,6 +114,7 @@ view model =
                 , Html.div [ style "margin-top" "60px" ] []
                 , fab
                 , showAboutDialog model
+                , Html.div [] [ text (debugPosition model.session.positionStatus) ]
                 ]
 
         Session.Loading ->
@@ -149,15 +150,9 @@ createSMS number text =
 
 geoURN : Position.Position -> String
 geoURN position =
-    "geo:"
+    "https://www.google.com/maps/search/?api=1&query="
         ++ String.fromFloat position.latitude
-        ++ ","
-        ++ String.fromFloat position.longitude
-        ++ ";u="
-        ++ String.fromFloat position.accuracy
-        ++ "?q="
-        ++ String.fromFloat position.latitude
-        ++ ","
+        ++ "%2C"
         ++ String.fromFloat position.longitude
 
 
@@ -294,9 +289,9 @@ showAboutDialog model =
             |> Dialog.setOpen model.showAboutDialog
             |> Dialog.setOnClose CloseAboutDialog
         )
-        { title = "Informationen"
+        { title = "Information"
         , content =
-            [ text "Mach's Einfach: Eine einfach zu bedienende Webapp für wiederkehrende Aufgaben."
+            [ text "Text My Location: Send my location via SMS to contacts."
             , p [] []
             , text ("Version: " ++ buildVersion)
             ]
@@ -381,3 +376,22 @@ getAllContacts =
 deleteContact : Contact -> Cmd Msg
 deleteContact contact =
     OutsideInfo.sendInfoOutside <| OutsideInfo.DeleteContact contact
+
+
+debugPosition : PositionStatus -> String
+debugPosition posStat =
+    case posStat of
+        Position.ValidPosition position ->
+            String.fromFloat position.latitude ++ "/" ++ String.fromFloat position.longitude
+
+        PermissionDenied ->
+            "PermissionDenied"
+
+        PositionUnavailable ->
+            "PositionUnavailable"
+
+        Timeout ->
+            "Timeout"
+
+        None ->
+            "'None'"
