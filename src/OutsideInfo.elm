@@ -1,6 +1,7 @@
 port module OutsideInfo exposing (..)
 
 import Contact exposing (Contact, contactDecoder, contactEncoder)
+import GeoLocationPermission exposing (GeoLocationPermission, permissionDecoder)
 import Json.Decode exposing (decodeValue, errorToString)
 import Json.Encode as E
 import Position exposing (Position, PositionStatus, positionStatusDecoder)
@@ -46,6 +47,14 @@ getInfoFromOutside tagger onError =
                         Err e ->
                             onError (errorToString e)
 
+                "GeoLocationPermissionChanged" ->
+                    case decodeValue permissionDecoder outsideInfo.data of
+                        Ok permission ->
+                            tagger <| GeoLocationPermissionChanged permission
+
+                        Err e ->
+                            onError (errorToString e)
+
                 _ ->
                     onError <| "Unexpected info from outside: tag: " ++ outsideInfo.tag ++ "; data: " ++ E.encode 0 outsideInfo.data
         )
@@ -62,6 +71,7 @@ type InfoForOutside
 type InfoForElm
     = ContactsChanged (List Contact)
     | PositionUpdated PositionStatus
+    | GeoLocationPermissionChanged GeoLocationPermission
 
 
 type alias GenericOutsideData =

@@ -1,10 +1,8 @@
 module Overview exposing (..)
 
 import Contact exposing (Contact)
-import DateFormat
 import Html exposing (Html, hr, p, text)
 import Html.Attributes exposing (alt, src, style)
-import Http
 import Material.Button as Button
 import Material.Card as Card
 import Material.Dialog as Dialog
@@ -19,9 +17,7 @@ import OutsideInfo exposing (InfoForElm(..), getInfoFromOutside)
 import Position exposing (PositionStatus(..))
 import Route
 import Session
-import Task
 import Time
-import Time.Extra
 import Url
 
 
@@ -63,6 +59,9 @@ update msg model =
 
                 PositionUpdated positionUpdate ->
                     ( { model | session = Session.setPositionStatus positionUpdate model.session }, Cmd.none )
+
+                GeoLocationPermissionChanged permission ->
+                    ( { model | session = Session.setGeoLocationPermission permission model.session }, Cmd.none )
 
         CreateNewContact ->
             ( model, Route.pushUrl model.session.key Route.NewContact )

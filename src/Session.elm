@@ -2,6 +2,7 @@ module Session exposing (..)
 
 import Browser.Navigation as Nav
 import Contact exposing (Contact)
+import GeoLocationPermission exposing (GeoLocationPermission)
 import Html exposing (sub)
 import Position exposing (PositionStatus)
 import Random exposing (Seed)
@@ -19,12 +20,13 @@ type alias Data =
     , key : Nav.Key
     , currentSeed : Seed
     , positionStatus : PositionStatus
+    , geoLocationPermission : GeoLocationPermission
     }
 
 
 empty : Nav.Key -> Seed -> Data
 empty key seed =
-    Data Empty key seed Position.None
+    Data Empty key seed Position.None GeoLocationPermission.Unknown
 
 
 getContacts : Data -> List Contact
@@ -55,6 +57,11 @@ setContactStatus status data =
 setPositionStatus : PositionStatus -> Data -> Data
 setPositionStatus status data =
     { data | positionStatus = status }
+
+
+setGeoLocationPermission : GeoLocationPermission -> Data -> Data
+setGeoLocationPermission permission data =
+    { data | geoLocationPermission = permission }
 
 
 setSeed : Seed -> Data -> Data

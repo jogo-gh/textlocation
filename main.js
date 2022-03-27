@@ -102,5 +102,37 @@ var positionOptions = {
   timeout: 5000
 };
 
-navigator.geolocation.getCurrentPosition(positionSuccess, positionError, positionOptions);
-navigator.geolocation.watchPosition(positionSuccess, positionError, positionOptions);
+function sendGeoLocPermission(perm) {
+  app.ports.infoForElm.send({
+    tag: "GeoLocationPermissionChanged",
+    data: { permission: perm }
+  });
+}
+
+function handlePermissionState(state) {
+  if (state == 'granted') {
+    sendGeoLocPermission(state);
+    navigator.geolocation.watchPosition(positionSuccess, positionError, positionOptions);
+  } else if (state == 'prompt') {
+    sendGeoLocPermission(state);
+    navigator.geolocation.getCurrentPosition(positionSuccess, positionError, positionOptions);
+  } else if (state == 'denied') {
+    sendGeoLocPermission(state);
+  }
+}
+
+function handlePermission() {
+  navigator.permissions.query({ name: 'geolocation' }).then(function (result) {
+    handlePermissionState(result.state);
+    result.onchange = function () {
+      handlePermissionState(result.state);
+    }
+  });
+}
+
+if (navigator.permissions) {
+  handlePermission();
+}
+
+// navigator.geolocation.getCurrentPosition(positionSuccess, positionError, positionOptions);
+// navigator.geolocation.watchPosition(positionSuccess, positionError, positionOptions);
