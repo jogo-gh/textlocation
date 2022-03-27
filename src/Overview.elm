@@ -1,6 +1,7 @@
 module Overview exposing (..)
 
 import Contact exposing (Contact)
+import GeoLocationPermission exposing (GeoLocationPermission(..))
 import Html exposing (Html, hr, p, text)
 import Html.Attributes exposing (alt, src, style)
 import Material.Button as Button
@@ -31,6 +32,7 @@ type alias Model =
     , contactToDelete : Maybe Contact
     , menuIsOpen : Bool
     , showAboutDialog : Bool
+    , showNeedsPermissionsDialog : Bool
     }
 
 
@@ -46,6 +48,7 @@ type Msg
     | MenuClosed
     | ShowAboutDialog
     | CloseAboutDialog
+    | CloseNeedsPermissionDialog
     | OutsideDataError String
 
 
@@ -61,7 +64,18 @@ update msg model =
                     ( { model | session = Session.setPositionStatus positionUpdate model.session }, Cmd.none )
 
                 GeoLocationPermissionChanged permission ->
-                    ( { model | session = Session.setGeoLocationPermission permission model.session }, Cmd.none )
+                    ( { model
+                        | session = Session.setGeoLocationPermission permission model.session
+                        , showNeedsPermissionsDialog =
+                            case permission of
+                                Granted ->
+                                    False
+
+                                _ ->
+                                    True
+                      }
+                    , Cmd.none
+                    )
 
         CreateNewContact ->
             ( model, Route.pushUrl model.session.key Route.NewContact )
@@ -94,6 +108,9 @@ update msg model =
         CloseAboutDialog ->
             ( { model | showAboutDialog = False }, Cmd.none )
 
+        CloseNeedsPermissionDialog ->
+            ( { model | showNeedsPermissionsDialog = False }, Cmd.none )
+
         OutsideDataError _ ->
             ( model, Cmd.none )
 
@@ -113,6 +130,7 @@ view model =
                 , Html.div [ style "margin-top" "60px" ] []
                 , fab
                 , showAboutDialog model
+                , showNeedPermissionsDialog model
                 , Html.div [] [ text (debugPosition model.session.positionStatus) ]
                 ]
 
@@ -305,6 +323,30 @@ showAboutDialog model =
         }
 
 
+showNeedPermissionsDialog : Model -> Html Msg
+showNeedPermissionsDialog model =
+    Dialog.alert
+        (Dialog.config
+            |> Dialog.setOpen model.showNeedsPermissionsDialog
+            |> Dialog.setOnClose CloseAboutDialog
+        )
+        { content =
+            [ text
+                ("In order to send your position to one of your contacts, I need the permission to get your position."
+                    ++ " I guess this is pretty obvious ;-)"
+                )
+            ]
+        , actions =
+            [ Button.text
+                (Button.config
+                    |> Button.setOnClick CloseNeedsPermissionDialog
+                    |> Button.setAttributes [ Dialog.defaultAction ]
+                )
+                "I understand"
+            ]
+        }
+
+
 showContact : Model -> Contact -> Html Msg
 showContact model contact =
     LayoutGrid.cell
@@ -364,6 +406,7 @@ defaultModel session =
     , contactToDelete = Nothing
     , menuIsOpen = False
     , showAboutDialog = False
+    , showNeedsPermissionsDialog = False
     }
 
 
