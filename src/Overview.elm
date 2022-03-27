@@ -67,8 +67,11 @@ update msg model =
                     ( { model
                         | session = Session.setGeoLocationPermission permission model.session
                         , showNeedsPermissionsDialog =
-                            case permission of
-                                Granted ->
+                            case ( permission, model.session.positionStatus ) of
+                                ( Granted, PermissionDenied ) ->
+                                    True
+
+                                ( Granted, _ ) ->
                                     False
 
                                 _ ->
