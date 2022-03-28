@@ -128,12 +128,10 @@ view model =
     case model.session.contactStatus of
         Session.Loaded contacts ->
             Html.div
-                [ style "background-color"
-                    (colorForGeoLocStatus model.session.geoLocationPermission
+                (style "height" "100vh"
+                    :: colorForGeoLocStatus model.session.geoLocationPermission
                         model.session.positionStatus
-                    )
-                , style "height" "100vh"
-                ]
+                )
                 [ topAppBar model
                 , contactsView model contacts
                 , Html.div [ style "margin-top" "60px" ] []
@@ -159,14 +157,14 @@ view model =
                 []
 
 
-colorForGeoLocStatus : GeoLocationPermission -> PositionStatus -> String
+colorForGeoLocStatus : GeoLocationPermission -> PositionStatus -> List (Html.Attribute msg)
 colorForGeoLocStatus geoLocPermission position =
     case ( geoLocPermission, position ) of
         ( GeoLocationPermission.Granted, ValidPosition _ ) ->
-            "#f0fff0"
+            []
 
         ( _, _ ) ->
-            "#ff8888"
+            [ style "background-color" "#ff8888" ]
 
 
 createPositionSMS : Contact -> PositionStatus -> String
