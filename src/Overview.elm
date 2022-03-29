@@ -12,6 +12,7 @@ import Material.IconButton as IconButton
 import Material.LayoutGrid as LayoutGrid
 import Material.List.Item as ListItem
 import Material.Menu as Menu
+import Material.Snackbar as Snackbar
 import Material.TopAppBar as TopAppBar
 import Material.Typography as Typography
 import OutsideInfo exposing (InfoForElm(..), getInfoFromOutside)
@@ -33,6 +34,7 @@ type alias Model =
     , menuIsOpen : Bool
     , showAboutDialog : Bool
     , showNeedsPermissionsDialog : Bool
+    , snackbarQueue : Snackbar.Queue Msg
     }
 
 
@@ -50,6 +52,7 @@ type Msg
     | CloseAboutDialog
     | CloseNeedsPermissionDialog
     | OutsideDataError String
+    | SnackbarClosed Snackbar.MessageId
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -76,6 +79,16 @@ update msg model =
 
                                 _ ->
                                     True
+                        , snackbarQueue =
+                            case ( permission, model.session.positionStatus ) of
+                                ( Granted, PermissionDenied ) ->
+                                    Snackbar.addMessage (Snackbar.message "Error: No permission to access location.") model.snackbarQueue
+
+                                ( Denied, _ ) ->
+                                    Snackbar.addMessage (Snackbar.message "Error: No permission to access location.") model.snackbarQueue
+
+                                _ ->
+                                    model.snackbarQueue
                       }
                     , Cmd.none
                     )
@@ -93,7 +106,18 @@ update msg model =
             ( { model | contactToDelete = Just chore }, Cmd.none )
 
         SendMessageToContact contact ->
-            ( model, OutsideInfo.sendInfoOutside <| OutsideInfo.OpenURN (createPositionSMS contact model.session.positionStatus) )
+            case ( model.session.geoLocationPermission, model.session.positionStatus ) of
+                ( Denied, _ ) ->
+                    ( { model | snackbarQueue = Snackbar.addMessage (Snackbar.message "Error: No permission to access location.") model.snackbarQueue }, Cmd.none )
+
+                ( _, PermissionDenied ) ->
+                    ( { model | snackbarQueue = Snackbar.addMessage (Snackbar.message "Error: No permission to access location.") model.snackbarQueue }, Cmd.none )
+
+                ( Granted, ValidPosition _ ) ->
+                    ( model, OutsideInfo.sendInfoOutside <| OutsideInfo.OpenURN (createPositionSMS contact model.session.positionStatus) )
+
+                _ ->
+                    ( { model | snackbarQueue = Snackbar.addMessage (Snackbar.message "Error: No valid position.") model.snackbarQueue }, Cmd.none )
 
         -- sendMessageToContact model contact
         UpdateContactClicked contact ->
@@ -117,6 +141,9 @@ update msg model =
         OutsideDataError _ ->
             ( model, Cmd.none )
 
+        SnackbarClosed messageId ->
+            ( { model | snackbarQueue = Snackbar.close messageId model.snackbarQueue }, Cmd.none )
+
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
@@ -128,17 +155,14 @@ view model =
     case model.session.contactStatus of
         Session.Loaded contacts ->
             Html.div
-                (style "height" "100vh"
-                    :: colorForGeoLocStatus model.session.geoLocationPermission
-                        model.session.positionStatus
-                )
+                []
                 [ topAppBar model
                 , contactsView model contacts
                 , Html.div [ style "margin-top" "60px" ] []
                 , fab
                 , showAboutDialog model
                 , showNeedPermissionsDialog model
-                , Html.div [] [ text (debugPosition model.session.positionStatus) ]
+                , showSnackbar model
                 ]
 
         Session.Loading ->
@@ -155,6 +179,12 @@ view model =
         Session.Empty ->
             Html.div []
                 []
+
+
+showSnackbar : Model -> Html Msg
+showSnackbar model =
+    Snackbar.snackbar (Snackbar.config { onClosed = SnackbarClosed })
+        model.snackbarQueue
 
 
 colorForGeoLocStatus : GeoLocationPermission -> PositionStatus -> List (Html.Attribute msg)
@@ -424,6 +454,7 @@ defaultModel session =
     , menuIsOpen = False
     , showAboutDialog = False
     , showNeedsPermissionsDialog = False
+    , snackbarQueue = Snackbar.initialQueue
     }
 
 
